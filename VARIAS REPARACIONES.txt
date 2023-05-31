@@ -1,0 +1,129 @@
+<!-- Modal de registro de Reparacion -->
+<div id="modal-formulario-r" class="modal modal-fixed-footer">
+  <div class="modal-content">
+    <h5>Registro de Reparacion</h5>
+
+    <form action="" method="POST">
+      <input type="hidden" name="form_repa" value="registro_repa">
+      <input type="hidden" id="ID_Cliente" name="ID_Cliente" value="">
+      
+      <fieldset>
+        <legend>Reparación 1</legend>
+        
+        <!-- Select Marca -->
+        <?php
+          $query_marca = mysqli_query($conection, "SELECT * FROM marca");
+          $result_marca = mysqli_num_rows($query_marca);	
+        ?>
+
+        <div>
+          <label for="marca1">Marca</label>
+          <select name="marca1" id="marca1">
+            <?php
+              if($result_marca > 0){
+                while($marca = mysqli_fetch_array($query_marca)){
+            ?>
+              <option value="<?php echo $marca['marca']; ?>"><?php echo $marca['marca']; ?></option>
+            <?php
+                }
+              }
+            ?>	
+          </select>
+        </div>
+        
+        <div>
+          <label for="modelo1">Modelo</label>
+          <input type="text" name="modelo1" id="modelo1">
+        </div>
+        
+        <div>
+          <label for="fecha1">Fecha</label>
+          <input type="date" name="fecha1" id="fecha1">
+        </div>
+      </fieldset>
+      
+      <fieldset>
+        <legend>Reparación 2</legend>
+        
+        <!-- Select Marca -->
+        <?php
+          mysqli_data_seek($query_marca, 0); // Reiniciar el puntero de resultados
+        ?>
+
+        <div>
+          <label for="marca2">Marca</label>
+          <select name="marca2" id="marca2">
+            <?php
+              if($result_marca > 0){
+                while($marca = mysqli_fetch_array($query_marca)){
+            ?>
+              <option value="<?php echo $marca['marca']; ?>"><?php echo $marca['marca']; ?></option>
+            <?php
+                }
+              }
+            ?>	
+          </select>
+        </div>
+        
+        <div>
+          <label for="modelo2">Modelo</label>
+          <input type="text" name="modelo2" id="modelo2">
+        </div>
+        
+        <div>
+          <label for="fecha2">Fecha</label>
+          <input type="date" name="fecha2" id="fecha2">
+        </div>
+      </fieldset>
+      
+      <!-- Agrega más fieldsets para cada reparación que necesites -->
+      
+      <div>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+---------------------------------------------------
+PROCESA LOS DATOS
+---------------------------------------------------
+<?php
+// Conectar a la base de datos
+$conection = mysqli_connect("localhost", "usuario", "contraseña", "basededatos");
+
+// Verificar la conexión
+if(mysqli_connect_errno()){
+  echo "Error al conectar con la base de datos: " . mysqli_connect_error();
+}
+
+// Verificar si se ha enviado el formulario
+if(isset($_POST['form_repa']) && $_POST['form_repa'] == 'registro_repa'){
+
+  // Obtener el ID del cliente
+  $ID_Cliente = mysqli_real_escape_string($conection, $_POST['ID_Cliente']);
+
+  // Recorrer los datos de cada reparación enviada por el usuario
+  foreach($_POST as $key => $value){
+    
+    // Verificar si el nombre del campo comienza con "marca"
+    if(strpos($key, 'marca') === 0){
+      
+      // Obtener el número de reparación a partir del nombre del campo
+      $num_repa = substr($key, -1);
+      
+      // Obtener los datos de la reparación
+      $marca = mysqli_real_escape_string($conection, $_POST['marca'.$num_repa]);
+      $modelo = mysqli_real_escape_string($conection, $_POST['modelo'.$num_repa]);
+      $fecha = mysqli_real_escape_string($conection, $_POST['fecha'.$num_repa]);
+      
+      // Insertar los datos de la reparación en la base de datos
+      $query = "INSERT INTO reparacion (ID_Cliente, Marca, Modelo, Fecha) VALUES ('$ID_Cliente', '$marca', '$modelo', '$fecha')";
+      mysqli_query($conection, $query);
+    }
+  }
+  
+  // Cerrar la conexión a la base de datos
+  mysqli_close($conection);
+}
+?>
