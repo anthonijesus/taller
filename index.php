@@ -1,7 +1,7 @@
 <?php 
 
 
-	
+	$alert = '';
 
 	session_start();
 
